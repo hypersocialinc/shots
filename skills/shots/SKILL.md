@@ -46,7 +46,7 @@ Run these checks before **every** sub-command. Do not skip any step.
 
 1. **Dependencies**: Run `npm list --prefix {{scripts_path}} sharp 2>/dev/null`. If it exits non-zero, run `npm install --prefix {{scripts_path}}`.
 2. **Workspace**: If `.shots/` doesn't exist, create it with subdirs (`app-screenshots/`, `inspo/`, `runs/`, `styles/`)
-3. **API keys**: Verify `OPENAI_API_KEY` or `FAL_KEY` is set. Warn if neither is found (not required for `/shots-scrape` or `/shots-benefits`).
+3. **API keys**: Verify `OPENAI_API_KEY` or `FAL_KEY` is set. If neither is found, **stop immediately** — tell the user to set one and do not continue. (Not required for `/shots-scrape` or `/shots-benefits`.)
 4. **Config**: Read `.shots/config.json` if it exists
 
 The scripts path is: the `scripts/` directory relative to this SKILL.md file.

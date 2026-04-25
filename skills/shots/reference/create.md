@@ -20,7 +20,11 @@ runs/
 
 ### 2. Check API keys
 
-Verify `OPENAI_API_KEY` or `FAL_KEY` is set. If neither is set, warn the user and ask them to set one before proceeding.
+Verify `OPENAI_API_KEY` or `FAL_KEY` is set. If neither is set, **stop here** — tell the user:
+
+> No API key found. Set `OPENAI_API_KEY` or `FAL_KEY` in your environment and try again.
+
+Do not continue to the next step.
 
 ### 3. Onboarding (if no config.json)
 
