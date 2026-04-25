@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "dependencies": {
+    "openai": "^4",
+    "@fal-ai/client": "^1",
+    "sharp": "^0.33"
+  }
+}
