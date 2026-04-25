@@ -46,7 +46,7 @@ Run these checks before **every** sub-command. Do not skip any step.
 
 1. **Dependencies**: Run `npm list --prefix {{scripts_path}} sharp 2>/dev/null`. If it exits non-zero, run `npm install --prefix {{scripts_path}}`.
 2. **Workspace**: If `.shots/` doesn't exist, create it with subdirs (`app-screenshots/`, `inspo/`, `runs/`, `styles/`)
-3. **API keys**: Verify `OPENAI_API_KEY` or `FAL_KEY` is set. If neither is found, **stop immediately** — tell the user to set one and do not continue. (Not required for `/shots-scrape` or `/shots-benefits`.)
+3. **API keys**: Verify `OPENAI_API_KEY` or `FAL_KEY` is set. If neither is found, **stop immediately** — tell the user to set one and do not continue. (Not required for `/shots-scrape` or `/shots-benefits`.) Optional: `SEARCHAPI_KEY` enables device-grouped screenshot scraping (iPhone, iPad, Watch, Mac, TV) via SearchAPI.
 4. **Config**: Read `.shots/config.json` if it exists
 
 The scripts path is: the `scripts/` directory relative to this SKILL.md file.
@@ -326,7 +326,7 @@ After listing, ask the user to pick a shot by number or ID. Validate the selecti
     "version": "", "releaseNotes": ""
   },
   "ratings": { "score": 0, "reviewCount": 0 },
-  "scrapedAssets": { "iconUrl": "", "screenshotUrls": [], "scrapedAt": "" },
+  "scrapedAssets": { "iconUrl": "", "screenshotUrls": [], "screenshotSource": "itunes", "screenshotsByDevice": {}, "scrapedAt": "" },
   "activeStyle": "",
   "benefits": []
 }
@@ -399,3 +399,4 @@ IDs are unique within a manifest.
 - One of the following environment variables:
   - `OPENAI_API_KEY` — OpenAI direct (exact pixel dimensions)
   - `FAL_KEY` — fal.ai proxy (exact pixel dimensions, often cheaper)
+- Optional: `SEARCHAPI_KEY` — enables device-grouped screenshot scraping via SearchAPI's apple_product engine (falls back to iTunes without it)

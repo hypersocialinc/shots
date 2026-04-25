@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "claude-design-hyperframes": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "computedHash": "db807ef19570ae6815e0ce889bd0c0f5c9cac88f25680e49c3e961fbdc1c8a8f"
+    },
+    "gsap": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "computedHash": "dfbf5933e83bdd30a07dcfac67e7c87f9040cf1e09af4bfd14f610c7caeb0893"
+    },
+    "hyperframes": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "computedHash": "117c2580de1e5cef4f5eca88f84973a08e1a7ed5ee0017d8a86e7f0c84621d35"
+    },
+    "hyperframes-cli": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "computedHash": "4bc20cb9a98b32df84721e3f7c9a578359003e6bfa4ed8b9801fb7e01eb6b36a"
+    }
+  }
+}

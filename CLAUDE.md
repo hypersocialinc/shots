@@ -36,3 +36,4 @@ All scripts are ES modules in `skills/shots/scripts/`. Run `npm install --prefix
 ## Environment
 
 Requires `OPENAI_API_KEY` or `FAL_KEY` for generation. Scripts auto-detect the provider.
+Optional: `SEARCHAPI_KEY` enables device-grouped screenshot scraping via SearchAPI.

@@ -94,6 +94,7 @@ Works with Claude Code, Cursor, Codex, Cline, and [40+ other AI coding agents](h
 
 - Node.js 18+
 - `OPENAI_API_KEY` or `FAL_KEY`
+- `SEARCHAPI_KEY` (optional) — enables scraping your actual App Store screenshots grouped by device (iPhone, iPad, Mac, etc.) via [SearchAPI](https://www.searchapi.io). Without it, screenshots come from iTunes (iPhone only).
 
 ## Project Structure
 

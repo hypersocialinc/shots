@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    :root {
+      --bg: #0D0D12;
+      --cream: #F5F0E8;
+      --orange: #F26522;
+      --muted: #8A8690;
+      --terminal-bg: #1a1a24;
+      --font-display: "Bricolage Grotesque", sans-serif;
+      --font-mono: "IBM Plex Mono", monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: var(--font-display);
+      color: var(--cream);
+    }
+    .scene {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+
+    /* ── Scene 1 ── */
+    #scene1 { z-index: 1; background: var(--bg); }
+
+    #s1-title {
+      position: absolute;
+      top: 340px; left: 200px;
+      font-size: 200px;
+      font-weight: 900;
+      letter-spacing: -4px;
+      color: var(--cream);
+      line-height: 1;
+    }
+    #s1-tagline {
+      position: absolute;
+      top: 560px; left: 206px;
+      font-size: 36px;
+      font-weight: 400;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+    #s1-mascot {
+      position: absolute;
+      top: 280px; right: 260px;
+      width: 340px;
+      height: auto;
+    }
+
+    /* Title corner state */
+    #s1-title-corner {
+      position: absolute;
+      top: 48px; left: 80px;
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: var(--cream);
+      line-height: 1;
+      opacity: 0;
+    }
+
+    /* Terminal — centered via left/top + GSAP xPercent/yPercent */
+    #terminal {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 960px;
+      height: 520px;
+      background: var(--terminal-bg);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      opacity: 0;
+      overflow: hidden;
+    }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #FF5F57; }
+    .dot-yellow { background: #FFBD2E; }
+    .dot-green { background: #28CA42; }
+    .terminal-title {
+      flex: 1;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--muted);
+      margin-right: 52px;
+    }
+    .terminal-body {
+      padding: 32px 36px;
+      font-family: var(--font-mono);
+      font-size: 24px;
+      line-height: 2;
+    }
+    .prompt-symbol { color: var(--muted); }
+    .typed-char {
+      color: var(--orange);
+      font-weight: 600;
+      opacity: 0;
+    }
+    #cursor {
+      display: inline-block;
+      width: 12px;
+      height: 28px;
+      background: var(--orange);
+      vertical-align: middle;
+      margin-left: 2px;
+      opacity: 0;
+    }
+    .term-line {
+      display: block;
+      opacity: 0;
+      margin-top: 4px;
+    }
+    .term-url {
+      color: #6BA3F7;
+      font-size: 20px;
+    }
+    .term-status {
+      color: var(--muted);
+      font-size: 20px;
+    }
+    .term-check {
+      color: #28CA42;
+    }
+    .term-spinner {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--orange);
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .term-success {
+      color: var(--orange);
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    /* Burst screenshots — positioned via GSAP, not CSS transform */
+    .burst-shot {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 300px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      opacity: 0;
+      z-index: 5;
+    }
+
+    /* ── Scene 2 ── */
+    #scene2 {
+      z-index: 2;
+      background: var(--bg);
+      opacity: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 120px;
+      gap: 40px;
+    }
+    #gallery-label {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      letter-spacing: 6px;
+      color: var(--muted);
+      text-transform: uppercase;
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      margin-left: -200px;
+    }
+    .gallery-pair {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .gallery-imgs {
+      display: flex;
+      gap: 20px;
+    }
+    .gallery-imgs img {
+      width: 200px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+    .gallery-name {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .gallery-phase {
+      display: flex;
+      justify-content: center;
+      gap: 120px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-left: -440px;
+      margin-top: -280px;
+    }
+    #gallery-phase-b { opacity: 0; }
+
+    /* ── Transition overlays — positioned via GSAP xPercent ── */
+    #wipe-a {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px; height: 1080px;
+      background: var(--orange);
+      z-index: 100;
+    }
+    #wipe-b {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px; height: 1080px;
+      background: var(--cream);
+      z-index: 101;
+    }
+    #flash-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px; height: 1080px;
+      background: #fff;
+      z-index: 102;
+      opacity: 0;
+    }
+
+    /* ── Scene 3 ── */
+    #scene3 {
+      z-index: 3;
+      background: var(--bg);
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .steps-row {
+      display: flex;
+      gap: 100px;
+      align-items: flex-start;
+      position: relative;
+    }
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 340px;
+      text-align: center;
+    }
+    .step-icon {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      color: var(--orange);
+      font-weight: 600;
+    }
+    .step-title {
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--cream);
+    }
+    .step-desc {
+      font-size: 22px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      line-height: 1.5;
+    }
+    .step-line {
+      position: absolute;
+      top: 50px;
+      height: 3px;
+      background: var(--orange);
+      transform-origin: left center;
+    }
+    #line-1 { left: 320px; width: 200px; }
+    #line-2 { left: 760px; width: 200px; }
+
+    /* ── Scene 4 ── */
+    #scene4 {
+      z-index: 4;
+      background: var(--bg);
+      opacity: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+    #cta-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      margin-left: -250px;
+      margin-top: -310px;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(242,101,34,0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    #cta-mascot {
+      width: 200px;
+      height: auto;
+      position: relative;
+      z-index: 1;
+    }
+    #cta-title {
+      font-size: 100px;
+      font-weight: 900;
+      color: var(--cream);
+      position: relative;
+      z-index: 1;
+    }
+    #cta-code {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      color: var(--orange);
+      background: rgba(242,101,34,0.08);
+      border: 1px solid rgba(242,101,34,0.2);
+      border-radius: 12px;
+      padding: 18px 36px;
+      position: relative;
+      z-index: 1;
+    }
+    #cta-compat {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      text-align: center;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div
+    id="comp"
+    data-composition-id="main"
+    data-start="0"
+    data-duration="25"
+    data-width="1920"
+    data-height="1080"
+  >
+    <!-- ════ Scene 1: Hook + Terminal + Burst ════ -->
+    <div id="scene1" class="scene">
+      <h1 id="s1-title">SHOTS</h1>
+      <p id="s1-tagline">App Store screenshots that drive installs</p>
+      <img id="s1-mascot" src="assets/mascot.png" crossorigin="anonymous" />
+
+      <div id="s1-title-corner">SHOTS</div>
+
+      <!-- Terminal window -->
+      <div id="terminal">
+        <div class="terminal-bar">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+          <div class="terminal-title">claude-code</div>
+        </div>
+        <div class="terminal-body">
+          <!-- Line 1: /shots -->
+          <div>
+            <span class="prompt-symbol">&#10095; </span><span class="typed-char">/</span><span class="typed-char">s</span><span class="typed-char">h</span><span class="typed-char">o</span><span class="typed-char">t</span><span class="typed-char">s</span><span id="cursor"></span>
+          </div>
+          <!-- Line 2: App Store URL paste -->
+          <span class="term-line" id="term-url"><span class="prompt-symbol">&#10095; </span><span class="term-url">https://apps.apple.com/app/id284882215</span></span>
+          <!-- Line 3: Scraping status -->
+          <span class="term-line" id="term-scrape"><span class="term-check">&#10003;</span> Scraped App Store listing</span>
+          <!-- Line 4: Analyzing -->
+          <span class="term-line" id="term-analyze"><span class="term-check">&#10003;</span> Analyzed existing screenshots</span>
+          <!-- Line 5: Generating -->
+          <span class="term-line" id="term-generate"><span class="term-spinner" id="gen-spinner"></span><span class="term-success">Generating improved screenshots...</span></span>
+        </div>
+      </div>
+
+      <!-- Burst screenshots (only -1 variants; gallery uses -2/-3 for zero overlap) -->
+      <img class="burst-shot" id="burst-1" src="assets/example-tiktok-1.png" crossorigin="anonymous" />
+      <img class="burst-shot" id="burst-2" src="assets/example-miniparty-1.png" crossorigin="anonymous" />
+      <img class="burst-shot" id="burst-3" src="assets/example-snapchat-1.png" crossorigin="anonymous" />
+      <img class="burst-shot" id="burst-4" src="assets/example-chatgpt-1.png" crossorigin="anonymous" />
+    </div>
+
+    <!-- ════ Scene 2: Example Gallery ════ -->
+    <div id="scene2" class="scene">
+      <div id="gallery-label">Generated Examples</div>
+
+      <!-- Phase A: TikTok + Miniparty (use 3rd images to avoid duplicate media) -->
+      <div id="gallery-phase-a" class="gallery-phase">
+        <div class="gallery-pair" id="pair-tiktok">
+          <div class="gallery-imgs">
+            <img src="assets/example-tiktok-2.png" crossorigin="anonymous" />
+            <img src="assets/example-tiktok-3.png" crossorigin="anonymous" />
+          </div>
+          <span class="gallery-name">TikTok</span>
+        </div>
+        <div class="gallery-pair" id="pair-miniparty">
+          <div class="gallery-imgs">
+            <img src="assets/example-miniparty-2.png" crossorigin="anonymous" />
+            <img src="assets/example-miniparty-3.png" crossorigin="anonymous" />
+          </div>
+          <span class="gallery-name">Miniparty</span>
+        </div>
+      </div>
+
+      <!-- Phase B: Snapchat + ChatGPT -->
+      <div id="gallery-phase-b" class="gallery-phase">
+        <div class="gallery-pair" id="pair-snapchat">
+          <div class="gallery-imgs">
+            <img src="assets/example-snapchat-2.png" crossorigin="anonymous" />
+            <img src="assets/example-snapchat-3.png" crossorigin="anonymous" />
+          </div>
+          <span class="gallery-name">Snapchat</span>
+        </div>
+        <div class="gallery-pair" id="pair-chatgpt">
+          <div class="gallery-imgs">
+            <img src="assets/example-chatgpt-2.png" crossorigin="anonymous" />
+            <img src="assets/example-chatgpt-3.png" crossorigin="anonymous" />
+          </div>
+          <span class="gallery-name">ChatGPT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ Scene 3: How It Works ════ -->
+    <div id="scene3" class="scene">
+      <div class="steps-row">
+        <div class="step" id="step-1">
+          <img class="step-icon" src="assets/icon-bolt.png" crossorigin="anonymous" />
+          <span class="step-num">01</span>
+          <span class="step-title">Scrape</span>
+          <span class="step-desc">Pull your App Store listing</span>
+        </div>
+        <div class="step" id="step-2">
+          <img class="step-icon" src="assets/icon-paint.png" crossorigin="anonymous" />
+          <span class="step-num">02</span>
+          <span class="step-title">Generate</span>
+          <span class="step-desc">AI creates composites</span>
+        </div>
+        <div class="step" id="step-3">
+          <img class="step-icon" src="assets/icon-check.png" crossorigin="anonymous" />
+          <span class="step-num">03</span>
+          <span class="step-title">Crop</span>
+          <span class="step-desc">Split into store-ready panels</span>
+        </div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step-line" id="line-2"></div>
+      </div>
+    </div>
+
+    <!-- ════ Scene 4: CTA / Close ════ -->
+    <div id="scene4" class="scene">
+      <div id="cta-glow"></div>
+      <img id="cta-mascot" src="assets/hero.png" crossorigin="anonymous" />
+      <div id="cta-title">Get Shots</div>
+      <div id="cta-code">npx skills add hypersocialinc/shots</div>
+      <div id="cta-compat">Works with Claude Code, Cursor, Codex, and 40+ AI agents</div>
+    </div>
+
+    <!-- ════ Transition overlays ════ -->
+    <div id="wipe-a"></div>
+    <div id="wipe-b"></div>
+    <div id="flash-overlay"></div>
+
+    <!-- ════ GSAP Timeline ════ -->
+    <script>
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+
+      // ─── Initialize GSAP-managed positions ───
+      // Terminal centering via GSAP (no CSS transform)
+      gsap.set("#terminal", { xPercent: -50, yPercent: -50 });
+      // Burst shots start at center, scale 0
+      gsap.set(".burst-shot", { xPercent: -50, yPercent: -50, scale: 0 });
+      // Wipes start offscreen left
+      gsap.set("#wipe-a", { xPercent: -100 });
+      gsap.set("#wipe-b", { xPercent: -100 });
+      // Step lines start at scaleX 0
+      gsap.set(".step-line", { scaleX: 0 });
+
+      // ─── Burst target positions (4 shots, wider spread) ───
+      var burstTargets = [
+        { x: -480, y: -200, rotation: -10 },
+        { x:  480, y: -220, rotation:  12 },
+        { x: -420, y:  200, rotation:   8 },
+        { x:  440, y:  180, rotation: -14 },
+      ];
+
+      // ╔═══════════════════════════════════════╗
+      // ║  SCENE 1: Hook + Terminal + Burst     ║
+      // ╚═══════════════════════════════════════╝
+
+      // Title slam in (0.2s)
+      tl.from("#s1-title", {
+        scale: 2.5, opacity: 0, duration: 0.7, ease: "back.out(1.4)"
+      }, 0.2);
+      tl.from("#s1-tagline", {
+        y: 30, opacity: 0, duration: 0.5, ease: "power2.out"
+      }, 0.6);
+
+      // Mascot bounces in
+      tl.from("#s1-mascot", {
+        x: 200, opacity: 0, duration: 0.8, ease: "elastic.out(1, 0.6)"
+      }, 0.4);
+
+      // Title + mascot shrink away (2s)
+      tl.to("#s1-title", {
+        scale: 0.26, x: -580, y: -290, opacity: 0, duration: 0.8, ease: "power3.inOut"
+      }, 2);
+      tl.to("#s1-tagline", {
+        opacity: 0, y: -20, duration: 0.4, ease: "power2.in"
+      }, 2);
+      tl.to("#s1-mascot", {
+        opacity: 0, x: 100, duration: 0.5, ease: "power2.in"
+      }, 2);
+
+      // Corner title + mascot appear
+      tl.to("#s1-title-corner", {
+        opacity: 1, duration: 0.4, ease: "power2.out"
+      }, 2.6);
+
+      // Terminal fades up (2.5s)
+      tl.to("#terminal", {
+        opacity: 1, duration: 0.6, ease: "power2.out"
+      }, 2.5);
+      tl.fromTo("#terminal", {
+        y: 40
+      }, {
+        y: 0, xPercent: -50, yPercent: -50, duration: 0.6, ease: "power3.out"
+      }, 2.5);
+
+      // Cursor blink (3.2s)
+      tl.to("#cursor", { opacity: 1, duration: 0.1 }, 3.2);
+      tl.to("#cursor", { opacity: 0, duration: 0.1 }, 3.5);
+      tl.to("#cursor", { opacity: 1, duration: 0.1 }, 3.7);
+
+      // Type /shots (3.8s)
+      tl.to(".typed-char", {
+        opacity: 1, duration: 0.06, stagger: 0.08, ease: "none"
+      }, 3.8);
+
+      // Cursor blink after typing
+      tl.to("#cursor", { opacity: 0, duration: 0.1 }, 4.4);
+      tl.to("#cursor", { opacity: 1, duration: 0.1 }, 4.6);
+
+      // URL line pastes in (4.7s)
+      tl.to("#term-url", {
+        opacity: 1, duration: 0.15, ease: "none"
+      }, 4.7);
+
+      // Scrape status appears with check (5.0s)
+      tl.to("#term-scrape", {
+        opacity: 1, duration: 0.25, ease: "power2.out"
+      }, 5.0);
+
+      // Analyze status (5.4s)
+      tl.to("#term-analyze", {
+        opacity: 1, duration: 0.25, ease: "power2.out"
+      }, 5.4);
+
+      // Generating line (5.8s)
+      tl.to("#term-generate", {
+        opacity: 1, duration: 0.25, ease: "power2.out"
+      }, 5.8);
+
+      // Spinner pulses
+      tl.to("#gen-spinner", {
+        scale: 1.6, duration: 0.25, ease: "sine.inOut", yoyo: true, repeat: 3
+      }, 5.9);
+
+      // Terminal shake (6.4s)
+      tl.to("#terminal", {
+        x: 5, duration: 0.05, ease: "none", yoyo: true, repeat: 5
+      }, 6.4);
+
+      // Terminal shrinks + fades (6.6s)
+      tl.to("#terminal", {
+        scale: 0.7, opacity: 0, xPercent: -50, yPercent: -50,
+        duration: 0.5, ease: "power2.in"
+      }, 6.6);
+      tl.to("#s1-title-corner", { opacity: 0, duration: 0.3 }, 6.6);
+
+      // ── THE BURST (6.7s) ──
+      burstTargets.forEach(function(pos, i) {
+        tl.to("#burst-" + (i + 1), {
+          x: pos.x,
+          y: pos.y,
+          rotation: pos.rotation,
+          xPercent: -50,
+          yPercent: -50,
+          scale: 0.55,
+          opacity: 1,
+          duration: 0.7,
+          ease: "back.out(1.4)"
+        }, 6.7 + i * 0.08);
+      });
+
+      // ╔═══════════════════════════════════════╗
+      // ║  TRANSITION: Scene 1 → Scene 2        ║
+      // ╚═══════════════════════════════════════╝
+
+      // Fade out burst screenshots
+      tl.to(".burst-shot", {
+        opacity: 0, scale: 0.3, duration: 0.4, ease: "power2.in", stagger: 0.03
+      }, 7.6);
+
+      // Cross-fade
+      tl.to("#scene1", {
+        opacity: 0, duration: 0.4, ease: "power2.inOut"
+      }, 7.8);
+      tl.set("#scene1", { visibility: "hidden" }, 8.2);
+      tl.to("#scene2", {
+        opacity: 1, duration: 0.4, ease: "power2.inOut"
+      }, 7.8);
+
+      // ╔═══════════════════════════════════════╗
+      // ║  SCENE 2: Example Gallery             ║
+      // ╚═══════════════════════════════════════╝
+
+      // Gallery label
+      tl.from("#gallery-label", {
+        y: -20, opacity: 0, duration: 0.4, ease: "power2.out"
+      }, 8.4);
+
+      // Phase A
+      tl.from("#pair-tiktok", {
+        x: -60, opacity: 0, duration: 0.6, ease: "power3.out"
+      }, 8.5);
+      tl.from("#pair-miniparty", {
+        x: 60, opacity: 0, duration: 0.6, ease: "power3.out"
+      }, 8.7);
+
+      // Phase A out (11.5s)
+      tl.to("#gallery-phase-a", {
+        opacity: 0, y: -30, duration: 0.4, ease: "power2.in"
+      }, 11.5);
+
+      // Phase B in (12s)
+      tl.to("#gallery-phase-b", { opacity: 1, duration: 0.1 }, 12);
+      tl.from("#pair-snapchat", {
+        x: -80, opacity: 0, duration: 0.6, ease: "power3.out"
+      }, 12.1);
+      tl.from("#pair-chatgpt", {
+        x: 80, opacity: 0, duration: 0.6, ease: "power3.out"
+      }, 12.3);
+
+      // ╔═══════════════════════════════════════╗
+      // ║  TRANSITION: Scene 2 → Scene 3        ║
+      // ║  Staggered color block wipes           ║
+      // ╚═══════════════════════════════════════╝
+
+      tl.to("#wipe-a", {
+        xPercent: 0, duration: 0.35, ease: "power3.in"
+      }, 15.3);
+      tl.to("#wipe-b", {
+        xPercent: 0, duration: 0.3, ease: "power3.in"
+      }, 15.45);
+      tl.set("#scene2", { opacity: 0, visibility: "hidden" }, 15.6);
+      tl.set("#scene3", { opacity: 1 }, 15.6);
+      tl.to("#wipe-a", {
+        xPercent: 100, duration: 0.35, ease: "power3.out"
+      }, 15.7);
+      tl.to("#wipe-b", {
+        xPercent: 100, duration: 0.3, ease: "power3.out"
+      }, 15.8);
+      // Reset wipes offscreen
+      tl.set("#wipe-a", { xPercent: -100 }, 16.2);
+      tl.set("#wipe-b", { xPercent: -100 }, 16.2);
+
+      // ╔═══════════════════════════════════════╗
+      // ║  SCENE 3: How It Works                ║
+      // ╚═══════════════════════════════════════╝
+
+      // Step 1
+      tl.from("#step-1 .step-icon", {
+        scale: 0, opacity: 0, duration: 0.5, ease: "back.out(1.7)"
+      }, 16.2);
+      tl.from("#step-1 .step-num", {
+        y: 20, opacity: 0, duration: 0.3, ease: "power2.out"
+      }, 16.4);
+      tl.from("#step-1 .step-title", {
+        y: 20, opacity: 0, duration: 0.3, ease: "power3.out"
+      }, 16.5);
+      tl.from("#step-1 .step-desc", {
+        opacity: 0, duration: 0.3, ease: "power2.out"
+      }, 16.7);
+
+      // Line 1
+      tl.to("#line-1", {
+        scaleX: 1, duration: 0.4, ease: "power2.inOut"
+      }, 17.0);
+
+      // Step 2
+      tl.from("#step-2 .step-icon", {
+        scale: 0, opacity: 0, duration: 0.5, ease: "back.out(1.7)"
+      }, 17.2);
+      tl.from("#step-2 .step-num", {
+        y: 20, opacity: 0, duration: 0.3, ease: "power2.out"
+      }, 17.4);
+      tl.from("#step-2 .step-title", {
+        y: 20, opacity: 0, duration: 0.3, ease: "power3.out"
+      }, 17.5);
+      tl.from("#step-2 .step-desc", {
+        opacity: 0, duration: 0.3, ease: "power2.out"
+      }, 17.7);
+
+      // Line 2
+      tl.to("#line-2", {
+        scaleX: 1, duration: 0.4, ease: "power2.inOut"
+      }, 18.0);
+
+      // Step 3
+      tl.from("#step-3 .step-icon", {
+        scale: 0, opacity: 0, duration: 0.5, ease: "back.out(1.7)"
+      }, 18.2);
+      tl.from("#step-3 .step-num", {
+        y: 20, opacity: 0, duration: 0.3, ease: "power2.out"
+      }, 18.4);
+      tl.from("#step-3 .step-title", {
+        y: 20, opacity: 0, duration: 0.3, ease: "power3.out"
+      }, 18.5);
+      tl.from("#step-3 .step-desc", {
+        opacity: 0, duration: 0.3, ease: "power2.out"
+      }, 18.7);
+
+      // ╔═══════════════════════════════════════╗
+      // ║  TRANSITION: Scene 3 → Scene 4        ║
+      // ║  Overexposure burn                     ║
+      // ╚═══════════════════════════════════════╝
+
+      tl.to("#flash-overlay", {
+        opacity: 1, duration: 0.3, ease: "power2.in"
+      }, 20.4);
+      tl.set("#scene3", { opacity: 0, visibility: "hidden" }, 20.6);
+      tl.set("#scene4", { opacity: 1 }, 20.6);
+      tl.to("#flash-overlay", {
+        opacity: 0, duration: 0.5, ease: "power2.out"
+      }, 20.7);
+
+      // ╔═══════════════════════════════════════╗
+      // ║  SCENE 4: CTA / Close                 ║
+      // ╚═══════════════════════════════════════╝
+
+      tl.from("#cta-glow", {
+        scale: 0.3, opacity: 0, duration: 0.8, ease: "power2.out"
+      }, 20.8);
+      tl.from("#cta-mascot", {
+        scale: 0, opacity: 0, duration: 0.6, ease: "back.out(1.6)"
+      }, 21.0);
+      tl.from("#cta-title", {
+        y: 40, opacity: 0, duration: 0.5, ease: "power3.out"
+      }, 21.4);
+      tl.from("#cta-code", {
+        y: 20, opacity: 0, duration: 0.4, ease: "power2.out"
+      }, 21.8);
+      tl.from("#cta-compat", {
+        opacity: 0, duration: 0.4, ease: "power2.out"
+      }, 22.2);
+
+      // Final fade out
+      tl.to("#scene4", {
+        opacity: 0, duration: 0.6, ease: "power2.inOut"
+      }, 24.2);
+      tl.set("#scene4", { visibility: "hidden" }, 24.8);
+
+      // Register
+      window.__timelines["main"] = tl;
+    </script>
+  </div>
+</body>
+</html>
