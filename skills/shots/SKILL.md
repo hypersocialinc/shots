@@ -91,6 +91,9 @@ Draft 6-8 benefits covering the app's key features. Each benefit needs:
 - `panelType` — From the Panel Styles table below (BoldClaim, ProductTour, etc.)
 - `feature` — Brief description of the backing feature/screen
 - `arcPosition` — Where it sits in the narrative arc (`hero`, `differentiator`, `core`, `trust`, `closer`)
+- `showDevice` — Boolean: whether to render an iPhone in this panel (see Panel Styles defaults)
+- `textPosition` — `"top"` or `"bottom"`: where headline/subtitle sit relative to the device
+- `breakoutElements` — (optional) Description of 3D elements that float out of the device or add visual depth (e.g. "heart emoji and chat bubble popping out of screen with drop shadows", "sticky note UI card pulled forward at an angle")
 
 ### Phase 3: Clarifying Questions
 
@@ -110,9 +113,12 @@ Write the finalized benefits array to `.shots/config.json`:
       "headline": "See exactly where $200 went",
       "subtitle": "Your spending, mapped by moment",
       "approach": "moment",
-      "panelType": "BoldClaim",
+      "panelType": "ProductTour",
       "feature": "Spending breakdown dashboard",
-      "arcPosition": "hero"
+      "arcPosition": "core",
+      "showDevice": true,
+      "textPosition": "top",
+      "breakoutElements": "pie chart slice and dollar coin floating out of the screen with drop shadows"
     }
   ]
 }
@@ -164,19 +170,83 @@ For each panel, pick one of three approaches:
 
 Choose the right style for each panel. Not every panel needs a headline + subtitle.
 
-| Style | When to use | Typical content |
-|-------|------------|-----------------|
-| BoldClaim | Opening impact | Large headline, minimal supporting text |
-| QuietProof | Subtle credibility | Stats, ratings, or quiet social proof |
-| BeforeAfter | Transformation | Side-by-side comparison within the panel |
-| ProductTour | Feature showcase | App UI screenshots as the hero visual |
-| TestimonialProof | Social proof | Quote + attribution |
-| DataResult | Metrics highlight | Key numbers or outcomes |
-| ProcessSteps | How-it-works | 2-3 simple steps |
-| ObjectionCollapse | Address doubt | Pre-empt the most common hesitation |
-| IdentityRecognition | User identity | "You already know..." framing |
-| TypographicCloser | Final CTA | Clean typographic closer, one strong idea |
-| FullBleedVisual | Visual impact | Edge-to-edge imagery, minimal text |
+| Style | When to use | Typical content | Default Device | Default Text Pos |
+|-------|------------|-----------------|----------------|------------------|
+| BoldClaim | Opening impact | Large headline, minimal supporting text | No | top |
+| QuietProof | Subtle credibility | Stats, ratings, or quiet social proof | Optional | top |
+| BeforeAfter | Transformation | Side-by-side comparison within the panel | Yes | top |
+| ProductTour | Feature showcase | App UI screenshots as the hero visual | Yes | top |
+| TestimonialProof | Social proof | Quote + attribution | No | top |
+| DataResult | Metrics highlight | Key numbers or outcomes | Yes | bottom |
+| ProcessSteps | How-it-works | 2-3 simple steps | Yes | top |
+| ObjectionCollapse | Address doubt | Pre-empt the most common hesitation | No | top |
+| IdentityRecognition | User identity | "You already know..." framing | No | top |
+| TypographicCloser | Final CTA | Clean typographic closer, one strong idea | No | top |
+| FullBleedVisual | Visual impact | Edge-to-edge imagery, minimal text | Yes | bottom |
+
+## Device Frame & Visual Depth
+
+Screenshots should look like real, high-end App Store creatives — not flat graphics. Use device mockups and 3D breakout elements to create depth and visual impact.
+
+### Device Spec
+
+- **Model**: iPhone X — thin bezels, rounded corners, centered notch, jet-black frame, portrait orientation
+- **Size**: ~55-70% of panel height, centered horizontally
+- **Visibility**: Fully visible by default. Partial crop (bottom edge cut off) is allowed for dynamic energy but must be intentional — never accidental clipping
+- **Screen content**: Never blank or placeholder. Always show specific, detailed app UI on the device screen
+
+### Screen Content Strategy
+
+For what to show on the device screen, use this priority:
+1. **Existing app screenshots** — idealized/improved versions of real screens from `.shots/app-screenshots/`
+2. **Codebase-inferred UI** — reconstruct screens from navigation, models, and UI code in the repo
+3. **Plausible UI from feature description** — design a realistic screen that matches the feature being highlighted
+
+Be specific about UI elements visible on screen: "A spending dashboard showing a colorful pie chart, three category rows (Food $340, Transport $120, Shopping $89), and a monthly total of $549" — not "shows the app."
+
+### Text Placement
+
+- `textPosition: "top"` → headline/subtitle in the top ~30%, device in the bottom ~70%
+- `textPosition: "bottom"` → device in the top ~70%, headline/subtitle in the bottom ~30%
+- Text must never overlap the device frame
+
+### 3D Breakout Elements
+
+Breakout elements are what make App Store screenshots eye-popping. They add depth and draw the eye to the feature being highlighted.
+
+**Floating UI fragments**: Pull key UI elements (cards, buttons, tags, notifications) out of the device screen so they appear to float in front with drop shadows and slight rotation. This draws the eye to the feature being highlighted.
+
+**3D emoji/icons/stickers**: Render glossy, 3D-style emoji, icons, or mascot elements that burst out of the device frame. These add playfulness and break the flat plane.
+
+**Background depth layers**: Use gradient orbs, swooshes, abstract shapes, or blurred circles behind the device to create a sense of layered depth. Not a flat color — a composition with foreground (breakout elements) → midground (device) → background (shapes/gradient).
+
+**When to use breakouts**: ProductTour and feature-focused panels benefit most. BoldClaim and TypographicCloser panels should stay clean. 1-2 breakout elements per panel max — don't clutter.
+
+**Prompt pattern for breakouts**: Include in the per-panel description, e.g. "Floating in front of the device with drop shadows: a 3D heart emoji and a chat bubble showing 'Hey! 👋' — these elements break out of the screen toward the viewer."
+
+### Device Prompt Fragment
+
+For panels with `showDevice: true`, use this template in the per-panel description:
+
+```
+[Panel N]: "{headline}" (subtitle: "{subtitle}") — {textPosition} text placement.
+iPhone X device (jet-black, thin bezels, centered notch) at ~60% panel height, centered.
+Screen shows: {detailed screen content description}.
+{breakoutElements ? "Floating in front of the device with drop shadows: " + breakoutElements + "." : ""}
+Background: {gradient/shape description for depth — not flat color}.
+```
+
+For text-only panels (`showDevice: false`):
+
+```
+[Panel N]: "{headline}" (subtitle: "{subtitle}") — headline-dominant layout.
+{Optional: "3D app icon / mascot floating with drop shadow" for visual interest.}
+Background: {gradient/shape description for depth}.
+```
+
+### Default Assignment Rule
+
+At least 2 of every 3 panels must have a device. If the defaults from the Panel Styles table result in fewer than 2/3 device panels, override the middle panel to include a device. Variety matters — not every panel should be identical.
 
 ## Narrative Arc
 
@@ -184,21 +254,23 @@ Order your panels to tell a story. The arc determines which benefit goes where.
 
 ### Full arc (5+ panels)
 
-| Position | Role | Panel Type | Purpose |
-|----------|------|------------|---------|
-| 1 | Hero | BoldClaim | Stop the scroll. One massive idea. **This panel alone should drive installs.** |
-| 2 | Differentiator | IdentityRecognition | Why THIS app, not alternatives |
-| 3+ | Core Feature | ProductTour | Show it working |
-| 2nd-to-last | Trust Signal | QuietProof / DataResult | Social proof or outcomes |
-| Last | Closer | TypographicCloser | One strong closing idea |
+| Position | Role | Panel Type | Device | Purpose |
+|----------|------|------------|--------|---------|
+| 1 | Hero | BoldClaim | No | Stop the scroll. One massive idea. **This panel alone should drive installs.** |
+| 2 | Differentiator | IdentityRecognition | No | Why THIS app, not alternatives |
+| 3+ | Core Feature | ProductTour | Yes | Show it working — device with breakout elements |
+| 2nd-to-last | Trust Signal | QuietProof / DataResult | Yes | Social proof or outcomes |
+| Last | Closer | TypographicCloser | No | One strong closing idea |
 
 ### 3-panel arc
 
-| Position | Role | Panel Type |
-|----------|------|------------|
-| 1 | Hero | BoldClaim |
-| 2 | Core Feature | ProductTour |
-| 3 | Closer | TypographicCloser |
+| Position | Role | Panel Type | Device |
+|----------|------|------------|--------|
+| 1 | Hero | BoldClaim | No (or device with big headline — can include 3D app icon/mascot floating) |
+| 2 | Core Feature | ProductTour | Yes (device with breakout elements showing key feature) |
+| 3 | Closer | TypographicCloser / ProductTour | Optional (device with different feature, or text-only closer) |
+
+**Variety guidance**: At least 2 of every 3 panels should have a device. Sometimes 1/3 is fine if one panel is a lifestyle/person shot or pure typographic statement. Mix text positions (top/bottom) across panels to avoid visual monotony.
 
 ## Prompt Construction
 
@@ -220,9 +292,7 @@ Create one {width}x{height} App Store marketing composite for "{appName}" with {
 Visual style: {visualTone}
 Brand colors: primary {primary}, accent {accent}, text {textColor}
 
-Panel 1 (left): {panel1Description}
-Panel 2 (center): {panel2Description}
-Panel 3 (right): {panel3Description}
+{Per-panel descriptions — use the device or text-only template from "Device Prompt Fragment" above}
 
 Each panel must crop cleanly into a standalone portrait screenshot at {targetWidth}x{targetHeight}.
 Keep text legible, at least 80px from panel edges.
@@ -235,6 +305,36 @@ CRITICAL LAYOUT RULES:
 - Subtitles are noticeably smaller, lighter weight, muted color
 - Center all content horizontally within each panel's column
 - No logos, no app icons, no download buttons
+
+DEVICE RENDERING RULES:
+- iPhone X: thin bezels, rounded corners, centered notch, jet-black frame, portrait
+- Device is fully visible by default (~55-70% of panel height), centered horizontally
+- Screen must show specific, detailed app UI — never blank or placeholder
+- Text (headline/subtitle) must not overlap the device frame
+- Partial crop at the bottom edge is allowed for dynamic energy
+
+3D & DEPTH RULES:
+- Breakout elements (floating UI cards, 3D emoji, icons) have drop shadows and slight scale/rotation
+- Elements can overlap the device bezel to break the flat plane
+- Backgrounds use gradient orbs, swooshes, or abstract shapes for layered depth — not flat solid colors
+- Depth layers: foreground (breakout elements) → midground (device) → background (gradient shapes)
+- Max 1-2 breakout elements per panel — don't clutter
+```
+
+**Per-panel format — Device panel:**
+```
+Panel N ({position}): "{headline}" (subtitle: "{subtitle}") — {textPosition} text placement.
+iPhone X device (jet-black, thin bezels, centered notch) at ~60% panel height, centered.
+Screen shows: {detailed screen content description}.
+Floating in front of the device with drop shadows: {breakoutElements}.
+Background: {gradient/shape description for depth}.
+```
+
+**Per-panel format — Text-only panel:**
+```
+Panel N ({position}): "{headline}" (subtitle: "{subtitle}") — headline-dominant layout, no device.
+{Optional 3D element: e.g. "3D app icon floating with drop shadow" or "glossy 3D emoji for visual interest."}
+Background: {gradient/shape description for depth}.
 ```
 
 ### Brand Integration
@@ -253,6 +353,13 @@ Avoid these common prompt mistakes:
 - **Off-center content**: Not centering content within each panel column
 - **Generic stock imagery**: Screenshots should feel specific to the app
 - **Fake UI elements**: Don't add fake status bars, app store badges, or download buttons
+- **Blank/placeholder screens**: Device screens must show specific, detailed UI — never empty or generic
+- **Text overlapping device**: Headlines and subtitles must not overlap the device frame
+- **Vague screen descriptions**: "Shows the app" is useless — describe exact UI elements, data, and layout
+- **Too many breakout elements**: Max 1-2 floating objects per panel — 3+ looks cluttered
+- **Flat lifeless backgrounds**: Solid color with no depth — use gradient orbs, shapes, or swooshes
+- **Device on every panel**: Variety matters — mix device and text-only panels
+- **Unrelated breakout elements**: Floating objects must relate to the panel's feature, not random decoration
 
 ## Shot Selection
 

@@ -42,9 +42,12 @@ Each benefit needs all fields:
   "headline": "See exactly where $200 went",
   "subtitle": "Your spending, mapped by moment",
   "approach": "moment",
-  "panelType": "BoldClaim",
+  "panelType": "ProductTour",
   "feature": "Spending breakdown dashboard",
-  "arcPosition": "hero"
+  "arcPosition": "core",
+  "showDevice": true,
+  "textPosition": "top",
+  "breakoutElements": "pie chart slice and dollar coin floating out of the screen with drop shadows"
 }
 ```
 
@@ -60,7 +63,7 @@ Map each benefit to an arc position:
 | `trust` | Social proof | Ratings, testimonials, outcomes |
 | `closer` | Final push | One strong closing idea |
 
-### 6. Assign panel types
+### 6. Assign panel types, device settings, and breakout elements
 
 Map each benefit to a panel type from the SKILL.md Panel Styles table. Match the content to the format:
 
@@ -68,6 +71,18 @@ Map each benefit to a panel type from the SKILL.md Panel Styles table. Match the
 - Feature showcases get ProductTour
 - Social proof gets QuietProof or TestimonialProof
 - Closing statements get TypographicCloser
+
+**Device settings:**
+
+- Set `showDevice` from the Panel Styles defaults column (e.g. ProductTour → `true`, BoldClaim → `false`)
+- Set `textPosition` based on visual balance — `"top"` is default, use `"bottom"` when the device should lead visually
+- **2-of-3 check**: verify at least 2 of every 3 benefits have `showDevice: true`. If not, override the middle benefit to include a device
+
+**Breakout elements:**
+
+- For each device panel, brainstorm `breakoutElements` — pick the most visually striking UI element from the feature and describe it floating forward with 3D depth
+- Examples: "notification card and bell icon popping out with drop shadows", "3D star rating badge floating above the device", "calendar event card pulled forward at a slight angle with shadow"
+- Keep it to 1-2 elements per panel. Skip breakout elements for BoldClaim and TypographicCloser panels
 
 ### 7. Ask clarifying questions
 

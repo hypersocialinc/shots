@@ -90,6 +90,16 @@ Combine the approved benefits with config data to build the generation prompt. F
 
 The screenshots must be high-converting — designed to stop the scroll and drive installs. Every panel earns its spot by making the viewer want the app.
 
+**Device-aware prompt building:**
+
+1. **Check `showDevice`** on each benefit. If missing, infer from the Panel Styles defaults in SKILL.md (e.g. ProductTour → `true`, BoldClaim → `false`)
+2. **Enforce the 2-of-3 rule**: at least 2 of every 3 panels must have a device. If defaults fall short, override the middle panel to include a device
+3. **For device panels**: analyze `.shots/app-screenshots/` and any codebase UI to write a detailed screen content description — specific UI elements, data, layout. Never "shows the app"
+4. **Add `breakoutElements`**: for each device panel, pick 1-2 UI elements or thematic objects that relate to the feature and describe them floating out of the device with drop shadows and slight rotation (e.g. "pie chart slice and dollar coin floating forward with drop shadows")
+5. **Use `textPosition`** (default `"top"` if missing) to place headline/subtitle above or below the device
+6. **Add background depth** to every panel: gradient orbs, swooshes, abstract shapes — not flat solid colors. Describe the background composition in each panel's prompt section
+7. **Use the per-panel format templates** from SKILL.md — "Device panel" template for `showDevice: true`, "Text-only panel" template for `showDevice: false`
+
 ### 11. Select platforms
 
 Ask the user which platforms to generate for. Present as a multi-select with these options:
