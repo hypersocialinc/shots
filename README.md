@@ -5,7 +5,7 @@
 <h1 align="center">Shots</h1>
 
 <p align="center">
-  <strong>App Store screenshots that drive installs — powered by GPT-Image 2.</strong>
+  <strong>Upload-ready App Store screenshots that drive installs — powered by GPT-Image 2.</strong>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 > - `OPENAI_API_KEY` with image generation enabled (GPT Image 2 access), OR
 > - `FAL_KEY` for fal.ai generation
 >
-> Optional: `SEARCHAPI_KEY` from [SearchAPI.io](https://www.searchapi.io/) (free trial available) enables device-grouped screenshot scraping for better visual references.
+> Optional: `SEARCHAPI_KEY` from [SearchAPI.io](https://www.searchapi.io/) (free trial available) enables scraping your or other apps' existing App Store screenshots to use as reference.
 
 ## Install
 
