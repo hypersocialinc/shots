@@ -74,13 +74,16 @@ Run these checks before every sub-command. Do not skip them.
 When the create flow starts and the config is missing or incomplete, ask for all of these in one message:
 
 1. App name
-2. App Store URL, if available
+2. **App Store URL** — ask explicitly: "Do you have an existing App Store or Google Play listing? If so, paste the URL." This is the highest-value input: it unlocks automated metadata scraping, competitor research, and existing screenshot analysis.
 3. Number of screenshots to generate
 4. Devices: iPhone, iPad, Android Phone
 5. Languages/locales
-6. Optional visual override, only if they want to steer the style
-7. Optional brand colors
-8. Optional differentiator override, only if they want to correct what you infer
+
+Optional (only ask if the user wants to override what you'll infer):
+
+6. Visual style override
+7. Brand colors
+8. Differentiator override
 
 Defaults:
 

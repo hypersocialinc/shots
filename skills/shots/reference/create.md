@@ -22,18 +22,27 @@ Merge the returned JSON into `.shots/config.json` without overwriting existing u
 
 ### 3. Open the workspace for inputs
 
+**This is a hard pause. Do not skip this step or continue without user confirmation.**
+
 Run:
 
 ```bash
 open .shots/
 ```
 
-Tell the user to add:
+Tell the user:
 
-- current screenshots to `.shots/app-screenshots/`
-- inspiration to `.shots/inspo/`
+> I've opened your `.shots/` workspace. Before I start researching, please add any reference material you have:
+>
+> - **App screenshots** → drag into `.shots/app-screenshots/`
+>   Current screenshots of your app help me match your real UI in the generated panels.
+>
+> - **Inspiration** → drag into `.shots/inspo/`
+>   Screenshots from competitors or apps whose style you like. These directly influence the visual direction.
+>
+> Let me know when you're ready and I'll start the research.
 
-Wait for the user to say they are ready.
+**Do not proceed to Step 4 until the user explicitly confirms.** Even if they say they have nothing to add, wait for acknowledgment.
 
 ### 4. Build the strategy brief
 
