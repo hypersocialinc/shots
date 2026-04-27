@@ -1,211 +1,141 @@
 # /shots create — Full Creation Flow
 
-Full end-to-end flow: initialize workspace, gather context, craft benefits, generate screenshots.
+Full flow: initialize the workspace, research the app, save a strategy brief, draft benefits, build a prompt, generate a 3-panel composite, and crop upload-ready screenshots.
 
 ## Steps
 
-### 1. Check workspace
+### 1. Ground the workspace
 
-If `.shots/` doesn't exist, create it:
+Run setup from `SKILL.md`.
 
-```bash
-mkdir -p .shots/app-screenshots .shots/inspo .shots/runs .shots/styles
-```
+If `.shots/config.json` is missing or obviously incomplete, run the Create Questionnaire from `SKILL.md`. If it exists, ask whether to keep the current config or update it.
 
-Create `.shots/.gitignore` if missing:
+### 2. Scrape when a URL exists
 
-```
-runs/
-```
-
-### 2. Check API keys
-
-Verify `OPENAI_API_KEY` or `FAL_KEY` is set. If neither is set, **stop here** — tell the user:
-
-> No API key found. Set `OPENAI_API_KEY` or `FAL_KEY` in your environment and try again.
-
-Do not continue to the next step.
-
-### 3. Onboarding (if no config.json)
-
-If `.shots/config.json` doesn't exist or is empty, ask these questions:
-
-1. **App name** (required): "What's your app called?"
-2. **App Store URL** (optional): "What's your App Store URL? (leave blank to skip)"
-3. **Positioning**: "What makes your app different from alternatives?"
-4. **Target audience**: "Who is your app for?"
-5. **Visual tone**: "Describe the visual aesthetic you want (e.g., clean and modern, bold and vibrant, dark and premium)"
-6. **Brand colors** (optional): "Do you have brand colors? (primary, accent, text color)"
-
-### 4. Scrape (if URL provided)
-
-If the user provided an App Store URL:
+If the user gave an App Store URL, run:
 
 ```bash
 node {{scripts_path}}/scrape.mjs --url "<url>" --download-screenshots --output-dir .shots/
 ```
 
-Parse the JSON output and merge it into config.json.
+Merge the returned JSON into `.shots/config.json` without overwriting existing user-provided positioning, brand, or strategy fields.
 
-### 5. Write config.json
+### 3. Open the workspace for inputs
 
-Write the gathered data to `.shots/config.json` using the schema from SKILL.md.
-
-### 6. Open folder for inspiration
+Run:
 
 ```bash
 open .shots/
 ```
 
-Tell the user:
+Tell the user to add:
 
-> I've opened your `.shots/` folder. Add your current screenshots to `app-screenshots/` and any design inspiration to `inspo/`. Say **"ready"** when you're done.
+- current screenshots to `.shots/app-screenshots/`
+- inspiration to `.shots/inspo/`
 
-### 7. Wait for user
+Wait for the user to say they are ready.
 
-Wait for the user to confirm they've added their reference materials.
+### 4. Build the strategy brief
 
-### 8. Analyze references
+Follow [strategy.md](strategy.md).
 
-Once the user says "ready":
-- Read any images in `.shots/app-screenshots/` and `.shots/inspo/`
-- If inside a code repo, scan the codebase following the Benefit Discovery process in SKILL.md
-- Understand the app's features, visual direction, and competitive position
+Do all of this before writing the generation prompt:
 
-### 9. Benefit discovery
+1. Research the app from the repo, listing, screenshots, inspo, and competitors.
+2. Infer the theme, palette, audience, category expectations, and strongest differentiator.
+3. Save a normalized `strategyBrief` to `.shots/config.json`.
+4. Draft 6-8 benefits and save them to `.shots/config.json`.
 
-Follow the full Benefit Discovery process from SKILL.md:
-1. Phase 1: Analyze codebase/app
-2. Phase 2: Draft 6-8 benefits using the three approaches
-3. Phase 3: Ask clarifying questions
-4. Phase 4: Save benefits to config.json
+If key unknowns remain, ask only the smallest number of clarifying questions needed to resolve them.
 
-Benefits should be conversion-oriented. Each headline should make someone who sees it in a 0.5-second scroll stop and want the app.
+### 5. Present the strategy before generating
 
-Present the drafted benefits to the user for approval before generating.
+Show the user:
 
-### 10. Build prompt
+- the one-line positioning
+- the chosen visual theme and palette
+- the 3-5 main market words you plan to lean on
+- the first 6-8 benefits
 
-Combine the approved benefits with config data to build the generation prompt. Follow the Prompt Template from SKILL.md. Use the first 3 benefits (sorted by narrative arc) for a 3-panel composite.
+Ask for approval or targeted changes before generation.
 
-The screenshots must be high-converting — designed to stop the scroll and drive installs. Every panel earns its spot by making the viewer want the app.
+### 6. Build the composite prompt
 
-**Device-aware prompt building:**
+Follow [prompting.md](prompting.md).
 
-1. **Check `showDevice`** on each benefit. If missing, infer from the Panel Styles defaults in SKILL.md (e.g. ProductTour → `true`, BoldClaim → `false`)
-2. **Enforce the 2-of-3 rule**: at least 2 of every 3 panels must have a device. If defaults fall short, override the middle panel to include a device
-3. **For device panels**: analyze `.shots/app-screenshots/` and any codebase UI to write a detailed screen content description — specific UI elements, data, layout. Never "shows the app"
-4. **Add `breakoutElements`**: for each device panel, pick 1-2 UI elements or thematic objects that relate to the feature and describe them floating out of the device with drop shadows and slight rotation (e.g. "pie chart slice and dollar coin floating forward with drop shadows")
-5. **Use `textPosition`** (default `"top"` if missing) to place headline/subtitle above or below the device
-6. **Add background depth** to every panel: gradient orbs, swooshes, abstract shapes — not flat solid colors. Describe the background composition in each panel's prompt section
-7. **Use the per-panel format templates** from SKILL.md — "Device panel" template for `showDevice: true`, "Text-only panel" template for `showDevice: false`
+Rules:
 
-### 11. Select platforms
+- Use the saved `strategyBrief` as the source of truth.
+- Use the first 3 approved benefits, ordered by `panelArc`, for the first composite.
+- For additional screenshots, continue with the next 3 benefits per composite.
+- Expand each benefit into a concrete panel spec: exact headline, exact subtitle, exact screen content, breakout elements, and background depth treatment.
+- For device panels, describe specific UI elements and data. Never say only "shows the app."
 
-Ask the user which platforms to generate for. Present as a multi-select with these options:
+### 7. Select platforms
 
-- **iPhone (6.5")** — App Store, 1284×2778 panels *(selected by default)*
-- **iPad (12.9")** — App Store, 2048×2732 panels
-- **Android Phone (16:9)** — Google Play, 1080×1920 panels
+Read `devices` from `.shots/config.json`. Default to `["iphone"]` if missing.
 
-At least one platform must be selected. Show the target panel dimensions for each.
+Dimension mapping is in `SKILL.md`.
 
-Platform dimensions reference (from SKILL.md):
+### 8. Scaffold, generate, and crop
 
-| | iPhone | iPad | Android Phone |
-|---|---|---|---|
-| Composite | 3456×2400 | 6144×2732 | 3240×1920 |
-| Panel | 1284×2778 | 2048×2732 | 1080×1920 |
-| Device key | `iphone` | `ipad` | `android` |
-| Dir suffix | *(none)* | `-ipad` | `-android` |
+For each selected platform, run:
 
-### 12. Generate
+**A. Scaffold**
 
-Generate a single base shot ID (e.g., `shot-a1b2c3`). This ID is shared across all selected platforms.
+```bash
+node {{scripts_path}}/scaffold.mjs \
+  --device {device} \
+  --panel-count {panelCount} \
+  --prompt "the full prompt text" \
+  --model gpt-image-2 \
+  --provider {openai|fal} \
+  --quality high \
+  --output-dir .shots/
+```
 
-**For each selected platform**, run the generation script with that platform's composite dimensions:
+Use the JSON stdout to capture `runDir`, `compositeFile`, `screenshotDir`, and `dimensions`.
 
-Collect reference image paths from `.shots/inspo/` and `.shots/app-screenshots/`:
+**B. Generate**
+
+Collect reference image paths from `.shots/inspo/` and `.shots/app-screenshots/`, then run:
 
 ```bash
 node {{scripts_path}}/generate.mjs \
   --prompt "..." \
   --references "path1.png,path2.png" \
-  --width {compositeWidth} --height {compositeHeight} \
+  --width {dimensions.compositeWidth} --height {dimensions.compositeHeight} \
   --quality high \
-  --output-dir .shots/runs/shot-{id}{suffix}/
+  --provider {openai|fal} \
+  --output-dir {runDir}
 ```
 
-Where `{suffix}` is empty for iPhone, `-ipad` for iPad, `-android` for Android Phone.
-
-### 13. Crop
-
-**For each selected platform**, crop using that platform's target dimensions:
+**C. Crop**
 
 ```bash
 node {{scripts_path}}/crop.mjs \
-  --input .shots/runs/shot-{id}{suffix}/composite.png \
-  --panels 3 \
-  --target-width {targetWidth} --target-height {targetHeight} \
-  --output-dir .shots/runs/shot-{id}{suffix}/screenshot/
+  --input {compositeFile} \
+  --panels {panelCount} \
+  --target-width {dimensions.targetWidth} --target-height {dimensions.targetHeight} \
+  --output-dir {screenshotDir}
 ```
 
-### 14. Save metadata
+### 9. Open output
 
-**For each selected platform**, write to the run directory:
-
-**prompt.md**:
-```markdown
-# shot-{id}{suffix}
-
-## User Prompt
-{the user's original request}
-
-## Full Prompt
-{the complete prompt sent to the API}
-```
-
-**metadata.json**:
-```json
-{
-  "id": "shot-{id}{suffix}",
-  "model": "gpt-image-2",
-  "provider": "openai",
-  "quality": "high",
-  "panelCount": 3,
-  "parentId": null,
-  "device": "{device}",
-  "dimensions": {
-    "compositeWidth": "{compositeWidth}",
-    "compositeHeight": "{compositeHeight}",
-    "targetWidth": "{targetWidth}",
-    "targetHeight": "{targetHeight}"
-  },
-  "createdAt": "..."
-}
-```
-
-### 15. Update manifest
-
-Read `.shots/manifest.json` (or create `{ "version": 2, "shots": [] }` if missing). **Append one entry per platform**, each with the `device` field. Non-iPhone entries use the suffixed ID (e.g., `shot-a1b2c3-ipad`, `shot-a1b2c3-android`). Write back.
-
-### 16. Open output
+Run:
 
 ```bash
-open .shots/runs/shot-{id}{suffix}/
+open {runDir}
 ```
 
-Open all generated directories (one `open` per platform).
+Open each generated run directory.
 
-### 17. Next steps
+### 10. Offer next steps
 
-Ask the user:
+Prompt the user with:
 
-> How do these look? You can:
-> - `/shots-revise` to iterate on any panels
-> - `/shots` to generate a new set
-> - `/shots-translate` to localize for another language
+- `"revise"` to iterate
+- `"generate"` to make a new set
+- `"translate to <locale>"` to localize
 
-## Shot ID Generation
-
-Generate a unique 6-character lowercase alphanumeric suffix. Check against existing IDs in the manifest to ensure uniqueness. Format: `shot-{suffix}`.
+If multiple locales were requested up front, offer to start translation passes after the primary language is approved.

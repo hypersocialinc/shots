@@ -2,36 +2,32 @@
 
 ## Architecture
 
-Primary skill (`shots`) for the create flow, plus 4 sub-command skills (`shots-*`) each with a thin `SKILL.md` wrapper. Source of truth is `skills/shots/`:
+Single skill (`shots`) handles all flows: create, revise, translate, and scrape. Source of truth is `skills/shots/`:
 
-- `SKILL.md` — Frontmatter, shared knowledge (benefits, copywriting, panels, dimensions), create flow entry point
-- `reference/` — One `.md` per sub-command with step-by-step agent instructions
+- `SKILL.md` — Frontmatter, intent router, setup, research contract, config contract
+- `reference/` — Shared docs and per-flow instructions (`create.md`, `strategy.md`, `prompting.md`, `revise.md`, `translate.md`, `scrape.md`)
 - `scripts/` — Bundled Node.js scripts for image generation, cropping, and scraping
 
-Sub-command skills in `skills/shots-*/`:
-
-- `shots-revise` — Iterate on existing shots with feedback
-- `shots-translate` — Localize shots for another language/locale
-- `shots-scrape` — Scrape App Store metadata
-- `shots-benefits` — Craft/refine benefit headlines
-
-Each sub-skill's `SKILL.md` points back to the parent for shared knowledge and to `reference/` for instructions.
+Sub-flows are triggered conversationally within a single `/shots` session via the intent router in SKILL.md.
 
 ## Harness directories
 
-`.claude/skills/shots/`, `.cursor/skills/shots/`, `.agents/skills/shots/` are symlinks to `skills/shots/`. Each `shots-*` sub-skill also has symlinks in all three harness directories. Do not break the symlinks.
+`.claude/skills/shots/`, `.cursor/skills/shots/`, `.agents/skills/shots/` are symlinks to `skills/shots/`. Do not break the symlinks.
 
 ## Scripts
 
 All scripts are ES modules in `skills/shots/scripts/`. Run `npm install --prefix skills/shots/scripts` before first use.
 
-- `generate.mjs` — Image generation via OpenAI or fal.ai. Outputs composite path to stdout.
+- `scaffold.mjs` — Scaffolds workspace (`--init`) and run directories. `--init` creates the default `config.json` and `manifest.json`. Run mode generates timestamp IDs and writes metadata/prompt. Outputs JSON to stdout.
+- `generate.mjs` — Image generation via OpenAI Image API or fal.ai. Supports longer timeouts and optional partial-image streaming for OpenAI direct. Outputs composite path to stdout.
 - `crop.mjs` — Crops composite into individual panels. Outputs panel paths to stdout.
 - `scrape.mjs` — Scrapes App Store via iTunes API. Outputs config JSON to stdout.
 
 ## Workspace
 
 `.shots/` is the user's workspace directory. It contains config, manifest, reference images, and generated runs. The `runs/` subdirectory is gitignored.
+
+`config.json` now stores both `strategyBrief` and `benefits`, and is initialized by `scaffold.mjs`. Prompt assembly should read from those saved artifacts rather than inferring everything from scratch on each generation.
 
 ## Environment
 

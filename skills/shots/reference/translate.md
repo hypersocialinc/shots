@@ -1,128 +1,108 @@
-# /shots translate — Localization Flow
+# Shots — Localization Flow
 
-Translate existing screenshots into another language/locale.
+Translate an existing shot or run into a target locale. Keep the visual system and layout the same unless the user explicitly asks for locale-specific redesign.
+
+## Contract
+
+Inputs:
+
+- a base `shot-id` or `run-id`
+- a target locale
+
+Output:
+
+- a new localized run under `.shots/runs/`
 
 ## Steps
 
-### 1. Load config and manifest
+### 1. Resolve the base shot
 
-Read `.shots/config.json` for benefits and ASO data. Read `.shots/manifest.json` for existing shots.
+Read `.shots/manifest.json` and `.shots/config.json`.
 
-### 2. Ask target locale
+If the user supplied a `shot-id` or `run-id`, use it directly.
 
-Ask: "What language/locale do you want to translate to? (e.g., Japanese, de-DE, fr-FR, es, pt-BR)"
+If they did not, list recent shots and ask them to choose one.
 
-### 3. List recent shots
+Read the selected shot's:
 
-Show the user recent shots from the manifest:
+- original prompt
+- `device`
+- `panelCount`
+- `dimensions`
 
+### 2. Resolve the locale
+
+If the locale was not supplied, ask for it.
+
+### 3. Translate only the visible campaign copy
+
+Translate the screenshot copy from the original prompt / saved benefits:
+
+- keep the same panel roles
+- keep the same emotional job of each panel
+- adapt idioms where needed
+- keep headline length suitable for screenshot readability
+
+Do not redesign the campaign. Preserve:
+
+- the same visual theme
+- the same panel order
+- the same device mix
+- the same core promise
+
+Only adjust strategy-level voice if the user explicitly asks for locale-specific adaptation.
+
+### 4. Build the localized prompt
+
+Follow [prompting.md](prompting.md).
+
+Use the original shot as the base and swap in the localized headline/subtitle copy while preserving the rest of the visual instructions.
+
+### 5. Scaffold, generate, and crop
+
+**A. Scaffold**
+
+```bash
+node {{scripts_path}}/scaffold.mjs \
+  --device {device} \
+  --panel-count {panelCount} \
+  --prompt "the full localized prompt" \
+  --model gpt-image-2 \
+  --provider {openai|fal} \
+  --quality high \
+  --parent {originalShotId} \
+  --locale {locale} \
+  --output-dir .shots/
 ```
-Recent shots:
-  1. shot-a1b2c3 — 3 panels, openai, iphone, 2025-01-15 (hero: "See exactly where $200 went")
-  2. shot-x7k9m2 — 3 panels, fal, ipad, 2025-01-14 (hero: "Sunday dinner, planned by Friday")
-```
 
-If the user provided a shot ID as an argument (e.g., `/shots-translate shot-a1b2c3 ja`), skip the listing and use that ID directly.
-
-### 4. Ask which shot to translate
-
-Ask the user to pick a shot by number or ID to use as the visual basis.
-
-Read the selected shot's `dimensions` and `device` from `.shots/runs/{shotId}/metadata.json` or the manifest entry. Extract:
-- `device` (e.g., `iphone`, `ipad`, `android`)
-- `dimensions.compositeWidth`, `dimensions.compositeHeight`
-- `dimensions.targetWidth`, `dimensions.targetHeight`
-
-If the shot predates the `device` field, fall back to iPhone defaults from SKILL.md.
-
-### 5. Translate benefits
-
-For each benefit in config.json, translate:
-- `headline` — Maintain the same emotional approach (moment/outcome/pain). Don't just word-swap; adapt the idiom for the target culture.
-- `subtitle` — Translate with the same permission-granting tone
-
-### 6. Translate ASO data
-
-Translate the following fields:
-- `aso.title` (max 30 chars in target language)
-- `aso.subtitle` (max 30 chars)
-- `aso.description` (max 4000 chars)
-- `aso.keywords` (max 100 chars, comma-separated)
-
-Present all translations to the user for review before generating.
-
-### 7. Build localized prompt
-
-Use the translated benefits to build a new generation prompt. Keep the same visual style, brand colors, and layout from the original shot. Only the text content changes.
-
-### 8. Generate
-
-Use the original shot's composite dimensions:
+**B. Generate**
 
 ```bash
 node {{scripts_path}}/generate.mjs \
   --prompt "..." \
   --references "..." \
-  --width {compositeWidth} --height {compositeHeight} \
+  --width {dimensions.compositeWidth} --height {dimensions.compositeHeight} \
   --quality high \
-  --output-dir .shots/runs/shot-{id}-{locale}/
+  --provider {openai|fal} \
+  --output-dir {runDir}
 ```
 
-Use a locale-suffixed directory name (e.g., `shot-a1b2c3-ja`, `shot-a1b2c3-de`).
-
-### 9. Crop
-
-Use the original shot's target dimensions:
+**C. Crop**
 
 ```bash
 node {{scripts_path}}/crop.mjs \
-  --input .shots/runs/shot-{id}-{locale}/composite.png \
-  --panels 3 \
-  --target-width {targetWidth} --target-height {targetHeight} \
-  --output-dir .shots/runs/shot-{id}-{locale}/screenshot/
+  --input {compositeFile} \
+  --panels {panelCount} \
+  --target-width {dimensions.targetWidth} --target-height {dimensions.targetHeight} \
+  --output-dir {screenshotDir}
 ```
 
-### 10. Save metadata
+### 6. Open output
 
-Write prompt.md and metadata.json. Include `locale`, `parentId`, and `device` in metadata. Carry forward `device` and `dimensions` from the parent shot.
-
-**metadata.json**:
-```json
-{
-  "id": "shot-{id}-{locale}",
-  "model": "gpt-image-2",
-  "provider": "openai",
-  "quality": "high",
-  "panelCount": 3,
-  "parentId": "shot-{originalId}",
-  "device": "{device}",
-  "locale": "{locale}",
-  "dimensions": {
-    "compositeWidth": "{compositeWidth}",
-    "compositeHeight": "{compositeHeight}",
-    "targetWidth": "{targetWidth}",
-    "targetHeight": "{targetHeight}"
-  },
-  "createdAt": "..."
-}
-```
-
-### 11. Update manifest
-
-Append the localized shot to the manifest.
-
-### 12. Open output
+Run:
 
 ```bash
-open .shots/runs/shot-{id}-{locale}/
+open {runDir}
 ```
 
-### 13. Save translated ASO
-
-Offer to save the translated ASO data to a locale-specific file:
-
-```
-.shots/aso-{locale}.json
-```
-
-This can be used for App Store Connect localization.
+Optional: if the user also wants localized App Store metadata, save a separate `.shots/aso-{locale}.json` file, but do not make that part of the default translation flow.
