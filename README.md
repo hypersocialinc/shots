@@ -95,28 +95,15 @@ Works with Claude Code, Cursor, Codex, Cline, and [40+ other AI coding agents](h
 
 ## Pricing
 
-**Estimated cost per screenshot set (GPT Image 2, high quality):**
-- ~**$0.50-0.54** per request (generates 3 screenshots)
-- ~**$0.17-0.18** per individual screenshot
+~**$0.50** per generation (3 screenshots) · ~**$0.17** per screenshot
 
-*Based on real generation data and [OpenAI GPT Image 2 pricing](https://platform.openai.com/docs/pricing):*
+Output image tokens account for ~95% of the cost and are fixed per composite size — prompt length and reference images are negligible. Based on real generation data and [OpenAI GPT Image 2 pricing](https://platform.openai.com/docs/pricing):
 
-| | Rate | Cached rate |
+| | Tokens | Cost |
 |---|---|---|
-| Image input | $8.00/1M tokens | $2.00/1M tokens |
-| Text input | $5.00/1M tokens | $1.25/1M tokens |
-| Image output | $30.00/1M tokens | - |
-
-**Actual cost breakdown (iPhone 3456×2400):**
-
-| | With references | Without references |
-|---|---|---|
-| Image input | 4,446 tokens → $0.036 | 0 tokens → $0.000 |
-| Text input | 1,434 tokens → $0.007 | 977 tokens → $0.005 |
-| Image output | 16,554 tokens → $0.497 | 16,554 tokens → $0.497 |
-| **Total** | **$0.54** | **$0.50** |
-
-Output tokens are the dominant cost (~95%) and are fixed per composite size. Input costs (prompt + reference images) are negligible. Repeated generations with the same references benefit from cached input pricing, bringing costs closer to the $0.50 floor.
+| Input (text + images) | ~1K-6K | $0.005-0.04 |
+| Output (composite image) | 16,554 | $0.497 |
+| **Total** | | **~$0.50** |
 
 ## Commands
 
