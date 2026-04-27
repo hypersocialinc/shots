@@ -199,3 +199,10 @@ skills/shots/
   config.json             # Scaffold-generated app/workflow schema
   runs/                   # Generated output (gitignored)
 ```
+
+## Show Us What You Made
+
+Using Shots for your app? We'd love to see it! [Open a PR](https://github.com/hypersocialinc/shots/pulls) adding a link to your App Store or Google Play listing and we'll feature it here.
+
+<!-- Add your app below! -->
+
