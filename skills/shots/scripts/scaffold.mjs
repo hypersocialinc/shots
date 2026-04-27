@@ -91,6 +91,7 @@ function createDefaultConfig() {
       timeoutMs: 900000,
       partialImages: 0,
       outputFormat: "png",
+      visualStyle: "independent",
     },
     aso: {
       title: "",

@@ -28,6 +28,15 @@ allowed-tools:
 
 Generate high-converting App Store screenshots. The job is not to decorate existing screens. The job is to infer the app's market, visual language, and strongest promise, then turn that into crop-safe screenshot panels built to drive installs.
 
+## Why Screenshot Quality Matters
+
+Research shows optimized app store screenshots can achieve:
+- **68.2% conversion rate** vs 26.4% industry average
+- **720% improvement** in install rate
+- **7-second decision window** - first 2-3 screenshots are critical
+
+This skill is designed to leverage GPT Image 2's strengths (95%+ text accuracy, UI mockup excellence, 4K output) combined with proven conversion patterns (Story Flow, hybrid captions, visual hierarchy) to create high-converting marketing assets.
+
 ## Intent Router
 
 | Intent | Detection | Action |

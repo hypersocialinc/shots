@@ -135,6 +135,28 @@ Save only the distilled result:
 }
 ```
 
+## Story Flow Framework (Value → Flow → Trust)
+
+Screenshots should form a cohesive narrative, not independent panels:
+
+1. **Value** (Panel 1): Lead with outcome or problem solved
+   - "Why does this app matter to me right now?"
+   - Show the transformation, not the buttons
+   - Example: "Sleep better tonight" not "Set bedtime reminders"
+
+2. **Flow** (Panel 2): Demonstrate the solution in action
+   - Show real UI with the feature delivering value
+   - Include 1-2 key features that enable the outcome
+   - Example: Smart reminders adapting to your schedule
+
+3. **Trust** (Panel 3): Build credibility and confidence
+   - Social proof, ratings, testimonials
+   - Security/privacy features
+   - Awards, press, or user count
+   - Example: "Trusted by 2M users. 4.8★ rating"
+
+Research shows this structure achieves 68.2% conversion vs 26.4% average.
+
 ## Benefits
 
 Draft 6-8 benefits from the brief, not from a feature list.
@@ -143,11 +165,28 @@ The goal is installs. Design for the browse page first: if a panel does not make
 
 Use existing app screenshots as reference for what the product looks like, not as a template for the copy. Improve the framing instead of mirroring it.
 
+### Problem-First Framing
+
+Lead with transformation, not feature list:
+- ❌ "Track your habits with our dashboard"
+- ✅ "Build lasting habits that stick"
+
+### ASO Text Optimization
+
+Screenshot text is indexed by Apple's OCR. Include:
+- Primary ASO keywords naturally in headlines
+- Category-relevant terms (e.g., "meditation", "focus", "productivity")
+- Avoid keyword stuffing - readability first
+
+### Benefit Approaches
+
 Allowed `approach` values:
 
-- `moment`
-- `outcome`
-- `pain`
+- `moment` — Capture a specific moment when value is delivered
+- `outcome` — State the end result the user achieves
+- `pain` — Address the frustration being solved
+
+Aim for 6-8 benefits total, structured in Value → Flow → Trust order.
 
 Each benefit needs:
 
