@@ -2,10 +2,10 @@
   <img src="assets/hero.png" alt="Shots — AI-powered App Store screenshots" width="500" />
 </p>
 
-<h1 align="center">Shots</h1>
+<h1 align="center">/shots</h1>
 
 <p align="center">
-  <strong>Upload-ready App Store screenshots that drive installs — powered by GPT-Image 2.</strong>
+  <strong>Claude Code & Agent Skill to generate Upload-ready App Store screenshots that drive installs — powered by GPT-Image 2.</strong>
 </p>
 
 <p align="center">
