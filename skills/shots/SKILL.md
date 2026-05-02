@@ -62,7 +62,7 @@ Run these checks before every sub-command. Do not skip them.
 
 1. Run `npm list --prefix {{scripts_path}} sharp 2>/dev/null`. If it fails, run `npm install --prefix {{scripts_path}}`.
 2. Run `node {{scripts_path}}/scaffold.mjs --init --output-dir .shots/`.
-3. For create, revise, and translate, verify `OPENAI_API_KEY` or `FAL_KEY` is set. Stop immediately if neither exists.
+3. For create, revise, and translate, verify `OPENAI_API_KEY`, `OPENROUTER_API_KEY`, or `FAL_KEY` is set. Stop immediately if none exists.
 4. Read `.shots/config.json` if present.
 
 `{{scripts_path}}` is the `scripts/` directory next to this file.

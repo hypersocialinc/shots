@@ -143,20 +143,22 @@ function getCompositeFilename(outputFormat) {
   return "composite.png";
 }
 
-// OpenAI provider via Image API
-async function generateOpenAI(prompt, references, quality, width, height, timeoutMs, partialImages, outputFormat, outputDir) {
-  const apiKey = process.env.OPENAI_API_KEY;
+// OpenAI provider via Image API (also used for OpenRouter)
+async function generateOpenAI(prompt, references, quality, width, height, timeoutMs, partialImages, outputFormat, outputDir, { baseURL, apiKey: overrideKey, model: overrideModel } = {}) {
+  const apiKey = overrideKey || process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY environment variable is required for the openai provider.");
 
   const { default: OpenAI, toFile } = await import("openai");
-  const openai = new OpenAI({ apiKey, timeout: timeoutMs });
+  const clientOpts = { apiKey, timeout: timeoutMs };
+  if (baseURL) clientOpts.baseURL = baseURL;
+  const openai = new OpenAI(clientOpts);
 
   const referenceFiles = await Promise.all(
     references.map((ref) => toFile(ref.buffer, ref.filename, { type: ref.mimeType }))
   );
 
   const params = {
-    model: "gpt-image-2",
+    model: overrideModel || "gpt-image-2",
     prompt,
     n: 1,
     size: `${width}x${height}`,
@@ -325,19 +327,24 @@ async function generateFal(prompt, references, quality, width, height, outputFor
 // Auto-detect provider
 function detectProvider(explicit) {
   if (explicit === "openai") return "openai";
+  if (explicit === "openrouter") return "openrouter";
   if (explicit === "fal") return "fal";
-  if (explicit) throw new Error(`Unknown provider "${explicit}". Valid options: openai, fal`);
+  if (explicit) throw new Error(`Unknown provider "${explicit}". Valid options: openai, openrouter, fal`);
 
   if (process.env.OPENAI_API_KEY) {
     console.error("Auto-detected provider: openai (OPENAI_API_KEY is set)");
     return "openai";
+  }
+  if (process.env.OPENROUTER_API_KEY) {
+    console.error("Auto-detected provider: openrouter (OPENROUTER_API_KEY is set)");
+    return "openrouter";
   }
   if (process.env.FAL_KEY) {
     console.error("Auto-detected provider: fal (FAL_KEY is set)");
     return "fal";
   }
   throw new Error(
-    "No API key found. Set one of:\n  OPENAI_API_KEY — OpenAI direct\n  FAL_KEY — fal.ai proxy"
+    "No API key found. Set one of:\n  OPENAI_API_KEY — OpenAI direct\n  OPENROUTER_API_KEY — OpenRouter proxy\n  FAL_KEY — fal.ai proxy"
   );
 }
 
@@ -357,10 +364,17 @@ const stopHeartbeat = withHeartbeat(`Image generation via ${provider}`);
 
 let result;
 try {
-  result =
-    provider === "openai"
-      ? await generateOpenAI(args.prompt, references, quality, width, height, timeoutMs, partialImages, outputFormat, outputDir)
-      : await generateFal(args.prompt, references, quality, width, height, outputFormat);
+  if (provider === "openai") {
+    result = await generateOpenAI(args.prompt, references, quality, width, height, timeoutMs, partialImages, outputFormat, outputDir);
+  } else if (provider === "openrouter") {
+    result = await generateOpenAI(args.prompt, references, quality, width, height, timeoutMs, partialImages, outputFormat, outputDir, {
+      baseURL: "https://openrouter.ai/api/v1",
+      apiKey: process.env.OPENROUTER_API_KEY,
+      model: "openai/gpt-image-2",
+    });
+  } else {
+    result = await generateFal(args.prompt, references, quality, width, height, outputFormat);
+  }
 } finally {
   stopHeartbeat();
 }
@@ -369,18 +383,19 @@ await fs.mkdir(outputDir, { recursive: true });
 const outputPath = path.join(outputDir, getCompositeFilename(outputFormat));
 await fs.writeFile(outputPath, result.imageBuffer);
 
+const modelName = provider === "openrouter" ? "openai/gpt-image-2" : provider === "openai" ? "gpt-image-2" : "openai/gpt-image-2";
 await updateRunMetadata(outputDir, {
   quality,
   referenceImages: referenceImagePaths,
   generation: {
     provider,
-    model: provider === "openai" ? "gpt-image-2" : "openai/gpt-image-2",
+    model: modelName,
     quality,
     timeoutMs,
     partialImages,
     outputFormat,
   },
-  openai: provider === "openai" ? result.providerMetadata : undefined,
+  openai: (provider === "openai" || provider === "openrouter") ? result.providerMetadata : undefined,
   fal: provider === "fal" ? result.providerMetadata : undefined,
   partialImageFiles: result.partialImageFiles,
 });
